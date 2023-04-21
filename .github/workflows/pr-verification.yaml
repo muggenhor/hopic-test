@@ -60,7 +60,7 @@ jobs:
       - determine-version
 #      - build
     runs-on: ubuntu-latest
-    if: ${{ !fromJSON(needs.determine-version.outputs.meta).autosquashed-commit && fromJSON(needs.determine-version.outputs.may-publish) && fromJSON(needs.determine-version.outputs.meta).refspecs }}
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'automerge') && !fromJSON(needs.determine-version.outputs.meta).autosquashed-commit && fromJSON(needs.determine-version.outputs.may-publish) && fromJSON(needs.determine-version.outputs.meta).refspecs }}
     steps:
       - name: Submit with Hopic
         id: checkout
