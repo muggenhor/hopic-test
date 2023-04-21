@@ -58,10 +58,10 @@ jobs:
     name: Submit PR when ready
     needs:
       - determine-version
-#      - buid
+#      - build
     runs-on: ubuntu-latest
     if: ${{ !fromJSON(needs.determine-version.outputs.meta).autosquashed-commit && fromJSON(needs.determine-version.outputs.may-publish) && fromJSON(needs.determine-version.outputs.meta).refspecs }}
     steps:
-      - name: Checkout with Hopic
+      - name: Submit with Hopic
         id: checkout
         uses: tomtom-international/hopic/.github/actions/submit@ci/github-actions
