@@ -37,6 +37,8 @@ jobs:
       - name: Checkout with Hopic
         id: checkout
         uses: tomtom-international/hopic/.github/actions/checkout@ci/github-actions
+      - run: cat "${GITHUB_EVENT_PATH}"
+      - run: cat "${RUNNER_TEMP}/pr-author.json"
     outputs:
       version: ${{ steps.checkout.outputs.version }}
       publish-version: ${{ steps.checkout.outputs.publish-version }}
