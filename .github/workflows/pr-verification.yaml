@@ -1,0 +1,70 @@
+# Copyright (C) 2023 TomTom NV. All rights reserved.
+
+---
+name: Pull Request Verification
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+      - unlabeled # triggering this build only for cancel-in-progress=true
+      - edited # PR title/description edited
+      - unlocked
+      - ready_for_review
+  pull_request_review:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  id-token: write
+  pull-requests: write  # to post comments and add labels to the PR
+  checks: write  # to add xUnit reports to the GitHub UI
+
+env:
+  CLICOLOR_FORCE: 1
+
+jobs:
+  determine-version:
+    name: Determine version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout with Hopic
+        id: checkout
+        uses: tomtom-international/hopic/.github/actions/checkout@ci/github-actions
+      - run: cat "${GITHUB_EVENT_PATH}"
+      - run: cat "${RUNNER_TEMP}/pr-author.json"
+    outputs:
+      version: ${{ steps.checkout.outputs.version }}
+      publish-version: ${{ steps.checkout.outputs.publish-version }}
+      pure-version: ${{ steps.checkout.outputs.pure-version }}
+      publishable-version: ${{ steps.checkout.outputs.publishable-version }}
+      meta: ${{ steps.checkout.outputs.meta }}
+      version-bumped: ${{ steps.checkout.outputs.version-bumped }}
+      may-publish: ${{ steps.checkout.outputs.may-publish }}
+
+#  build:
+#    name: Create and test conan package
+#    needs:
+#      - determine-version
+#    uses: ./.github/workflows/build.yaml
+#    with:
+#      package_version: ${{ needs.determine-version.outputs.publishable-version }}
+
+  submit:
+    name: Submit PR when ready
+    needs:
+      - determine-version
+#      - build
+    runs-on: ubuntu-latest
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'automerge') && !fromJSON(needs.determine-version.outputs.meta).autosquashed-commit && fromJSON(needs.determine-version.outputs.may-publish) && fromJSON(needs.determine-version.outputs.meta).refspecs }}
+    steps:
+      - name: Submit with Hopic
+        id: checkout
+        uses: tomtom-international/hopic/.github/actions/submit@ci/github-actions
