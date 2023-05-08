@@ -37,7 +37,7 @@ jobs:
     steps:
       - name: Checkout with Hopic
         id: checkout
-        uses: tomtom-international/hopic/.github/actions/checkout@ci/github-actions
+        uses: tomtom-international/hopic/.github/actions/checkout@release/1
       - run: cat "${GITHUB_EVENT_PATH}"
       - run: cat "${RUNNER_TEMP}/pr-author.json"
     outputs:
@@ -67,4 +67,4 @@ jobs:
     steps:
       - name: Submit with Hopic
         id: checkout
-        uses: tomtom-international/hopic/.github/actions/submit@ci/github-actions
+        uses: tomtom-international/hopic/.github/actions/submit@release/1
